@@ -747,18 +747,22 @@ ol.format.WFS.prototype.readProjectionFromDocument = function(doc) {
 ol.format.WFS.prototype.readProjectionFromNode = function(node) {
   goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT);
   goog.asserts.assert(node.localName == 'FeatureCollection');
-  node = node.firstElementChild.firstElementChild;
-  if (goog.isDefAndNotNull(node)) {
-    for (var n = node.firstElementChild; !goog.isNull(n);
-        n = n.nextElementSibling) {
-      if (!(n.childNodes.length === 0 ||
-          (n.childNodes.length === 1 &&
-          n.firstChild.nodeType === 3))) {
-        var objectStack = [{}];
-        this.gmlFormat_.readGeometryElement(n, objectStack);
-        return ol.proj.get(objectStack.pop().srsName);
-      }
+
+  node = node.firstElementChild;
+  if (!goog.isDefAndNotNull(node)) return null;
+  node = node.firstElementChild;
+  if (!goog.isDefAndNotNull(node)) return null;
+
+  for (var n = node.firstElementChild; !goog.isNull(n);
+      n = n.nextElementSibling) {
+    if (!(n.childNodes.length === 0 ||
+        (n.childNodes.length === 1 &&
+        n.firstChild.nodeType === 3))) {
+      var objectStack = [{}];
+      this.gmlFormat_.readGeometryElement(n, objectStack);
+      return ol.proj.get(objectStack.pop().srsName);
     }
   }
+
   return null;
 };
